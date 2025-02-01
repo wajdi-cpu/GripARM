@@ -4,17 +4,20 @@
 #include <SoftwareSerial.h>
 #include <Stepper.h>
 
-int speed_Rev = 200 ;
-int motorSpeed = 10;
-Stepper stepper(speed_Rev, 8, 10, 9, 11);
+int speed_Rev = 200;
+int motorSpeed = 300;
+Stepper stepper(speed_Rev, 8, 9, 10, 11);
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 SoftwareSerial BTSerial(2, 3); // RX, TX
+
 #define SERVO_MIN  150  // Minimum pulse length
 #define SERVO_MAX  600  // Maximum pulse length
-int pos0 = SERVO_MIN;
-int pos1;
-int pos2;
-int pos3;
+
+// Initialize servo positions
+int pos2 = SERVO_MIN;
+int pos3 = SERVO_MIN;
+int pos4 = SERVO_MIN;
+
 void setup() {
   Serial.begin(9600);
   pwm.begin();
@@ -24,65 +27,73 @@ void setup() {
 }
 
 void loop() {
-  // Move both servos from min to max
-   if (BTSerial.available()) {
+  if (BTSerial.available()) {
     char command = BTSerial.read();
+    Serial.print("Received Command: ");
+    Serial.println(command);
+    
     switch (command) {
-        // Move gripper-servo  
+      // Move gripper-servo  
       case '1':
-        if(pos1 >= SERVO_MIN || pos1 < SERVO_MAX;){
-            pwm.setPWM(0, 0, SERVO_MAX);
-        }
+        pwm.setPWM(0, 0, SERVO_MAX );
         break;
       case '2':
-        if(pos1 >= SERVO_MIN || pos1 < SERVO_MAX;){
-            pwm.setPWM(0, 0, SERVO_MIN) ;
-        }
+        pwm.setPWM(0, 0, SERVO_MIN );
         break;
-        // Move servo1
+
+      // Move servo1
       case '3':
-        if(pos2 >= SERVO_MIN || pos2 < SERVO_MAX;){
-            pwm.setPWM(1, 0, pos2+10) ;
+        if (pos2 >= SERVO_MIN && pos2 < SERVO_MAX) {
+          pos2 += 10;
+          pwm.setPWM(1, 0, pos2);
         }
         break;
       case '4':
-        if(pos2 >= SERVO_MIN || pos2 < SERVO_MAX;){
-            pwm.setPWM(1, 0, pos2-10) ;
+        if (pos2 > SERVO_MIN && pos2 <= SERVO_MAX) {
+          pos2 -= 10;
+          pwm.setPWM(1, 0, pos2);
         }
         break;
-        // Move servo2
+
+      // Move servo2
       case '5':
-        if(pos3 >= SERVO_MIN || pos3 < SERVO_MAX;){
-            pwm.setPWM(2, 0, pos3+10) ;
+        if (pos3 >= SERVO_MIN && pos3 < SERVO_MAX) {
+          pos3 += 10;
+          pwm.setPWM(2, 0, pos3);
         }
         break;
-      case '6': 
-        if(pos3 >= SERVO_MIN || pos3 < SERVO_MAX;){
-            pwm.setPWM(2, 0, pos3-10) ;
+      case '6':
+        if (pos3 > SERVO_MIN && pos3 <= SERVO_MAX) {
+          pos3 -= 10;
+          pwm.setPWM(2, 0, pos3);
         }
-        break;  
-        // Move servo3
+        break;
+
+      // Move servo3
       case '7':
-        if(pos4 >= SERVO_MIN || pos4 < SERVO_MAX;){
-            pwm.setPWM(3, 0, pos4+10) ;
+        if (pos4 >= SERVO_MIN && pos4 < SERVO_MAX) {
+          pos4 += 10;
+          pwm.setPWM(3, 0, pos4);
         }
         break;
       case '8':
-        if(pos4 >= SERVO_MIN || pos4 < SERVO_MAX;){
-            pwm.setPWM(3, 0, pos4-10) ;
+        if (pos4 > SERVO_MIN && pos4 <= SERVO_MAX) {
+          pos4 -= 10;
+          pwm.setPWM(3, 0, pos4);
         }
         break;
-        // Move Stepper
+
+      // Move Stepper
       case '9':
-        stepper.step(100);
+        stepper.step(speed_Rev);
         break;
-      case '10':
-        stepper.step(-100);
+      case '10': 
+        stepper.step(-speed_Rev);
         break;
+
       default:
         Serial.println("Unknown command");
         break;
     }
   }
 }
-
